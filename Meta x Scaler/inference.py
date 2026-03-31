@@ -1,21 +1,28 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
+import random
 
 app = FastAPI()
 
-class StepInput(BaseModel):
-    state: dict = {}
+state = {"lanes": [10, 10, 10, 10]}
+
+@app.get("/")
+def home():
+    return {"message": "API Running"}
 
 @app.post("/reset")
 def reset():
-    return {
-        "state": {"lanes": [10, 10, 10, 10]}
-    }
+    global state
+    state = {"lanes": [10, 10, 10, 10]}
+    return {"state": state}
 
 @app.post("/step")
-def step(input: StepInput):
+def step():
+    global state
+    action = random.randint(0, 3)
+    state["lanes"][action] = max(0, state["lanes"][action] - 1)
+
     return {
-        "state": {"lanes": [9, 11, 10, 10]},
+        "state": state,
         "reward": 1,
         "done": False
     }
